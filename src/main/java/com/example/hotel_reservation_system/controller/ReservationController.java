@@ -4,9 +4,9 @@ import com.example.hotel_reservation_system.model.Reservation;
 import com.example.hotel_reservation_system.service.ReservationService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.HashMap;
 import java.util.Map;
-
 import java.util.List;
 
 @RestController
@@ -37,19 +37,23 @@ public class ReservationController {
         return service.getById(id);
     }
 
-    // FILTER BY STATUS
+    /*
+    // FILTER BY STATUS (DISABLED)
     @GetMapping("/status/{status}")
     public List<Reservation> getByStatus(@PathVariable String status) {
         return service.getByStatus(status);
     }
+    */
 
     // ROOM AVAILABILITY
     @GetMapping("/availability/{roomNumber}")
     public Map<String, Object> checkAvailability(@PathVariable int roomNumber) {
         boolean available = service.isRoomAvailable(roomNumber);
+
         Map<String, Object> response = new HashMap<>();
         response.put("roomNumber", roomNumber);
         response.put("available", available);
+
         return response;
     }
 

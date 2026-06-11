@@ -7,7 +7,6 @@ import java.util.List;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    List<Reservation> findByStatus(String status);
-
-    boolean existsByRoomNumberAndStatus(int roomNumber, String status);
+    // ROOM CHECK (UPDATED - NO STATUS)
+    boolean existsByRoomNumber(int roomNumber);
 }

@@ -33,18 +33,26 @@ public class ReservationService {
                         new ResourceNotFoundException("Reservation not found with id: " + id));
     }
 
-    // FILTER BY STATUS
+    /*
+    // FILTER BY STATUS (DISABLED)
     public List<Reservation> getByStatus(String status) {
         return repo.findByStatus(status);
     }
+    */
 
-    // ROOM AVAILABILITY
+    // ROOM AVAILABILITY (UPDATED - STATUS LOGIC DISABLED)
     public boolean isRoomAvailable(int roomNumber) {
-        boolean exists = repo.existsByRoomNumberAndStatus(roomNumber, "CONFIRMED");
+
+        // OLD LOGIC (USES STATUS - DISABLED)
+        // boolean exists = repo.existsByRoomNumberAndStatus(roomNumber, "CONFIRMED");
+
+        // NEW SIMPLE LOGIC (NO STATUS)
+        boolean exists = repo.existsByRoomNumber(roomNumber);
+
         return !exists;
     }
 
-    // UPDATE
+    // UPDATE (STATUS REMOVED)
     public Reservation update(Long id, Reservation newData) {
 
         Reservation existing = repo.findById(id)
@@ -56,7 +64,10 @@ public class ReservationService {
         existing.setRoomNumber(newData.getRoomNumber());
         existing.setCheckInDate(newData.getCheckInDate());
         existing.setCheckOutDate(newData.getCheckOutDate());
-        existing.setStatus(newData.getStatus());
+
+        /*
+        existing.setStatus(newData.getStatus()); // DISABLED
+        */
 
         return repo.save(existing);
     }

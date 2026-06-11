@@ -31,8 +31,8 @@ public class Reservation {
     @FutureOrPresent(message = "Check-out date must be today or in the future")
     private LocalDate checkOutDate;
 
-    @NotBlank(message = "Status is required")
-    private String status;
+    //@NotBlank(message = "Status is required")
+    //private String status;
 
     // Default constructor
     public Reservation() {
@@ -84,11 +84,11 @@ public class Reservation {
         this.checkOutDate = checkOutDate;
     }
 
-    public String getStatus() {
+    /*public String getStatus() {
         return status;
     }
 
     public void setStatus(String status) {
         this.status = status;
-    }
+    }*/
 }
