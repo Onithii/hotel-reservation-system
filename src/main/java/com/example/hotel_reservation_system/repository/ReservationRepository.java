@@ -7,6 +7,8 @@ import java.util.List;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
-    // Custom query method to find all reservations belonging to a specific User ID
     List<Reservation> findByUserId(Long userId);
+
+    // Change it to this exact camelCase property path
+    boolean existsByRoomRoomNumber(String roomNumber);
 }

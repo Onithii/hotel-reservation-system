@@ -7,6 +7,8 @@ import java.util.List;
 
 @Repository
 public interface RoomRepository extends JpaRepository<Room, Long> {
-    // Custom query method derived automatically by Spring based on the field name
     List<Room> findByStatus(String status);
+
+    // Add this method so Spring can check if a room number exists
+    boolean existsByRoomNumber(String roomNumber);
 }

@@ -1,8 +1,5 @@
 package com.example.hotel_reservation_system.service;
 
-import com.example.hotel_reservation_system.repository.ReservationRepository;
-import com.example.hotel_reservation_system.repository.RoomRepository;
-import com.example.hotel_reservation_system.repository.UserRepository;
 import com.example.hotel_reservation_system.model.*;
 import com.example.hotel_reservation_system.dto.*;
 import com.example.hotel_reservation_system.repository.*;
@@ -19,13 +16,34 @@ public class HotelService {
     @Autowired private RoomRepository roomRepo;
     @Autowired private ReservationRepository reservationRepo;
 
-    // --- USER / ROOM CRUD PASSTHROUGHS ---
-    public User registerUser(User user) { return userRepo.save(user); }
-    public List<User> getAllUsers() { return userRepo.findAll(); }
-    public Room addRoom(Room room) { return roomRepo.save(room); }
-    public List<Room> getAvailableRooms() { return roomRepo.findByStatus("AVAILABLE"); }
+    // =========================================================================
+    // --- 1. USER & ROOM OPERATIONS ---
+    // =========================================================================
 
-    // --- BOOKING LOGIC WITH DTO MAPPING ---
+    public User registerUser(User user) {
+        return userRepo.save(user);
+    }
+
+    public List<User> getAllUsers() {
+        return userRepo.findAll();
+    }
+
+    public Room addRoom(Room room) {
+        return roomRepo.save(room);
+    }
+
+    public List<Room> getAllRooms() {
+        return roomRepo.findAll();
+    }
+
+    public List<Room> getAvailableRooms() {
+        return roomRepo.findByStatus("AVAILABLE");
+    }
+
+    // =========================================================================
+    // --- 2. CORE CUSTOMER BOOKING LOGIC ---
+    // =========================================================================
+
     public ReservationResponseDTO createReservation(ReservationRequestDTO dto) {
         User user = userRepo.findById(dto.getUserId())
                 .orElseThrow(() -> new RuntimeException("User profile not found."));
@@ -40,16 +58,16 @@ public class HotelService {
         long days = ChronoUnit.DAYS.between(dto.getCheckInDate(), dto.getCheckOutDate());
         if (days <= 0) days = 1;
 
-        // Map DTO payload to internal Database Entity
+        // Map incoming DTO structural properties to internal Database Entity
         Reservation reservation = new Reservation();
         reservation.setUser(user);
         reservation.setRoom(room);
         reservation.setCheckInDate(dto.getCheckInDate());
         reservation.setCheckOutDate(dto.getCheckOutDate());
-        reservation.setTotalPrice(days * room.getPricePerNight() * 1.12); // Base price + 12% automated tax
+        reservation.setTotalPrice(days * room.getPricePerNight() * 1.12); // Base price + 12% automated luxury tax
         reservation.setStatus("CONFIRMED");
 
-        // Update room availability
+        // Toggle room status automatically inside a transactional scope
         room.setStatus("BOOKED");
         roomRepo.save(room);
 
@@ -63,12 +81,63 @@ public class HotelService {
                 .collect(Collectors.toList());
     }
 
-    // Helper method to convert Entity -> Response DTO
+    // =========================================================================
+    // --- 3. RECEPTIONIST STATUS CORRECTION ACTION ---
+    // =========================================================================
+
+    public ReservationResponseDTO updateStatus(Long reservationId, String newStatus) {
+        Reservation res = reservationRepo.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("Reservation not found with ID: " + reservationId));
+
+        res.setStatus(newStatus);
+
+        // If guest checks out or cancels, make the room inventory AVAILABLE again
+        if ("CHECKED_OUT".equalsIgnoreCase(newStatus) || "CANCELLED".equalsIgnoreCase(newStatus)) {
+            Room room = res.getRoom();
+            if (room != null) {
+                room.setStatus("AVAILABLE");
+                roomRepo.save(room);
+            }
+        }
+
+        Reservation saved = reservationRepo.save(res);
+        return convertToResponseDTO(saved);
+    }
+
+    // =========================================================================
+    // --- 4. ADMIN ADMINISTRATIVE DELETION ---
+    // =========================================================================
+
+    public void deleteReservation(Long id) {
+        Reservation res = reservationRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reservation not found with ID: " + id));
+
+        // If an administrator drops an active record, free up the room inventory block first
+        if ("CONFIRMED".equalsIgnoreCase(res.getStatus()) || "BOOKED".equalsIgnoreCase(res.getStatus())) {
+            Room room = res.getRoom();
+            if (room != null) {
+                room.setStatus("AVAILABLE");
+                roomRepo.save(room);
+            }
+        }
+        reservationRepo.delete(res);
+    }
+
+    // =========================================================================
+    // --- PRIVATE UTILITY MAPPERS ---
+    // =========================================================================
+
     private ReservationResponseDTO convertToResponseDTO(Reservation res) {
         ReservationResponseDTO response = new ReservationResponseDTO();
         response.setId(res.getId());
-        response.setCustomerName(res.getUser().getName());
-        response.setRoomNumber(res.getRoom().getRoomNumber());
+
+        if (res.getUser() != null) {
+            response.setCustomerName(res.getUser().getName());
+        }
+        if (res.getRoom() != null) {
+            response.setRoomNumber(res.getRoom().getRoomNumber());
+        }
+
         response.setCheckInDate(res.getCheckInDate());
         response.setCheckOutDate(res.getCheckOutDate());
         response.setTotalPrice(res.getTotalPrice());
