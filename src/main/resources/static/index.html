@@ -1,32 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Hotel Reservation System</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Luxury - Guest Booking Portal</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>Hotel Reservation System</h1>
+<div class="booking-container">
+    <h2>Book Your Stay</h2>
 
-<form id="reservationForm">
+    <button type="button" class="btn-refresh" id="refreshBtn">🔄 Load/Refresh Available Rooms</button>
 
-    <input type="text" id="customerName" placeholder="Customer Name">
+    <form id="bookingForm">
+        <div class="form-group">
+            <label for="userId">Your User ID:</label>
+            <input type="number" id="userId" placeholder="Enter your registered User ID (e.g., 1)" required>
+        </div>
 
-    <input type="email" id="email" placeholder="Email">
+        <div class="form-group">
+            <label for="roomSelect">Select an Available Room:</label>
+            <select id="roomSelect" required>
+                <option value="">-- Click refresh above to load rooms --</option>
+            </select>
+        </div>
 
-    <input type="number" id="roomNumber" placeholder="Room Number">
+        <div class="form-group">
+            <label for="checkInDate">Check-In Date:</label>
+            <input type="date" id="checkInDate" required>
+        </div>
 
-    <input type="date" id="checkInDate">
+        <div class="form-group">
+            <label for="checkOutDate">Check-Out Date:</label>
+            <input type="date" id="checkOutDate" required>
+        </div>
 
-    <input type="date" id="checkOutDate">
+        <button type="submit">Confirm Reservation</button>
+    </form>
 
-    <input type="text" id="status" placeholder="Status">
-
-    <button type="submit">Create Reservation</button>
-
-</form>
+    <div id="receipt"></div>
+</div>
 
 <script src="app.js"></script>
-
 </body>
 </html>

@@ -9,6 +9,5 @@ import java.util.List;
 public interface RoomRepository extends JpaRepository<Room, Long> {
     List<Room> findByStatus(String status);
 
-    // Add this method so Spring can check if a room number exists
     boolean existsByRoomNumber(String roomNumber);
 }

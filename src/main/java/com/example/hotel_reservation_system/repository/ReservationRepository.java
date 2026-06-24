@@ -9,6 +9,5 @@ import java.util.List;
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     List<Reservation> findByUserId(Long userId);
 
-    // Change it to this exact camelCase property path
     boolean existsByRoomRoomNumber(String roomNumber);
 }
