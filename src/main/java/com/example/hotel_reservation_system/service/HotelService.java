@@ -1,8 +1,11 @@
 package com.example.hotel_reservation_system.service;
 
-import com.nibm.hotel.model.*;
-import com.nibm.hotel.dto.*;
-import com.nibm.hotel.repository.*;
+import com.example.hotel_reservation_system.repository.ReservationRepository;
+import com.example.hotel_reservation_system.repository.RoomRepository;
+import com.example.hotel_reservation_system.repository.UserRepository;
+import com.example.hotel_reservation_system.model.*;
+import com.example.hotel_reservation_system.dto.*;
+import com.example.hotel_reservation_system.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.temporal.ChronoUnit;
