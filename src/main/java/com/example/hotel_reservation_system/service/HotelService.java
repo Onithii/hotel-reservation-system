@@ -3,8 +3,10 @@ package com.example.hotel_reservation_system.service;
 import com.example.hotel_reservation_system.model.*;
 import com.example.hotel_reservation_system.dto.*;
 import com.example.hotel_reservation_system.repository.*;
+import com.example.hotel_reservation_system.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,14 +46,15 @@ public class HotelService {
     // --- 2. CORE CUSTOMER BOOKING LOGIC ---
     // =========================================================================
 
+    @Transactional
     public ReservationResponseDTO createReservation(ReservationRequestDTO dto) {
         User user = userRepo.findById(dto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User profile not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("User profile not found with ID: " + dto.getUserId()));
         Room room = roomRepo.findById(dto.getRoomId())
-                .orElseThrow(() -> new RuntimeException("Target room not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Target room not found with ID: " + dto.getRoomId()));
 
         if (!"AVAILABLE".equalsIgnoreCase(room.getStatus())) {
-            throw new IllegalStateException("Room is occupied.");
+            throw new IllegalStateException("Room is occupied or undergoing maintenance.");
         }
 
         // Calculate nights stayed
@@ -81,13 +84,20 @@ public class HotelService {
                 .collect(Collectors.toList());
     }
 
+    // MANDATORY REQUIREMENT: Core logic to look up an entity by its Primary Key
+    public Reservation getReservationEntityById(Long id) {
+        return reservationRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with ID: " + id));
+    }
+
     // =========================================================================
     // --- 3. RECEPTIONIST STATUS CORRECTION ACTION ---
     // =========================================================================
 
+    @Transactional
     public ReservationResponseDTO updateStatus(Long reservationId, String newStatus) {
         Reservation res = reservationRepo.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Reservation not found with ID: " + reservationId));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with ID: " + reservationId));
 
         res.setStatus(newStatus);
 
@@ -108,9 +118,10 @@ public class HotelService {
     // --- 4. ADMIN ADMINISTRATIVE DELETION ---
     // =========================================================================
 
+    @Transactional
     public void deleteReservation(Long id) {
         Reservation res = reservationRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reservation not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with ID: " + id));
 
         // If an administrator drops an active record, free up the room inventory block first
         if ("CONFIRMED".equalsIgnoreCase(res.getStatus()) || "BOOKED".equalsIgnoreCase(res.getStatus())) {
@@ -124,10 +135,10 @@ public class HotelService {
     }
 
     // =========================================================================
-    // --- PRIVATE UTILITY MAPPERS ---
+    // --- PUBLIC UTILITY MAPPERS ---
     // =========================================================================
 
-    private ReservationResponseDTO convertToResponseDTO(Reservation res) {
+    public ReservationResponseDTO convertToResponseDTO(Reservation res) {
         ReservationResponseDTO response = new ReservationResponseDTO();
         response.setId(res.getId());
 
