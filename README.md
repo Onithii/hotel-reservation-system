@@ -70,9 +70,6 @@ hotel-reservation-system/
 ├── pom.xml
 └── README.md
 ```
-
-*The structure above is illustrative. Adapt it to match your actual repository.*
-
 ## Future Improvements
 
 - JWT-based authentication and authorization.
