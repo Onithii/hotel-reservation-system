@@ -29,7 +29,6 @@ A backend-focused hotel reservation application developed using **Java, Spring B
 | GET | `/rooms/available` | Check available rooms |
 | `/api/reservations` | Reservation operations; verify the implemented HTTP methods | Manage reservations |
 
-*Note: Confirm the reservation endpoint's exact path and supported HTTP methods in your implementation.*
 
 ## Getting Started
 
@@ -45,7 +44,7 @@ A backend-focused hotel reservation application developed using **Java, Spring B
 1. Clone the repository:
 
    ```bash
-   git clone YOUR_REPOSITORY_URL
+   git clone [https://github.com/Onithii/hotel-reservation-system.git]
    ```
 
 2. Open the project in your preferred IDE.
@@ -89,5 +88,3 @@ Developed as part of the Higher Diploma in Software Engineering programme at the
 **Focus Areas:** Backend Development · REST APIs · Database Integration · Software Engineering
 
 ---
-
-*This project is intended for educational purposes.*
